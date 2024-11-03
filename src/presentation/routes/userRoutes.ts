@@ -104,8 +104,7 @@ export const userRoutes = (app: Hono) => {
    *             $ref: '#/components/schemas/UpdateUserDTO'
    */
   app.put('/profile', authMiddleware, validate(UpdateUserSchema), async (c: Context) => {
-    const userIdHeader = c.req.header('userId') ?? '';
-    const userId = parseInt(userIdHeader);
+    const userId = parseInt(c.get('userId'));
     const dto: UpdateUserDTO = await c.req.json();
 
     try {

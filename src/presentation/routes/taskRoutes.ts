@@ -9,8 +9,7 @@ const taskService = new TaskService(taskRepository);
 
 export const taskRoutes = (app: Hono) => {
   app.post('/tasks', authMiddleware, async (c: Context) => {
-    const userIdHeader = c.req.header('userId') ?? '';
-    const userId = parseInt(userIdHeader);
+    const userId = parseInt(c.get('userId'));
     const dto: CreateTaskDTO = await c.req.json();
     dto.userId = userId;
 
@@ -24,10 +23,12 @@ export const taskRoutes = (app: Hono) => {
       return c.json({ message: 'An unknown error occurred' }, 400);
     }
   });
-
   app.get('/tasks', authMiddleware, async (c: Context) => {
-    const userIdHeader = c.req.header('userId') ?? '';
-    const userId = parseInt(userIdHeader);
+    const userId = parseInt(c.get('userId'));
+
+    if (isNaN(userId)) {
+      return c.json({ message: 'Invalid userId' }, 400);
+    }
 
     try {
       const tasks = await taskService.getTasksByUser(userId);
